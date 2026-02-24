@@ -188,4 +188,12 @@ pyrightconfig.json
 mypy.ini
 tox.ini
 *.difypkg
+<<<<<<< HEAD
 dify-plugin-darwin-arm64
+=======
+models/openai_api_compatible/PR_DESCRIPTION.md
+
+# local venv
+models/volcengine/.venv/
+models/volcengine/uv.lock
+>>>>>>> main
