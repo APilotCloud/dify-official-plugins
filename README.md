@@ -24,14 +24,10 @@ git push -u origin dev
 # 切换回 main 分支
 git checkout main
 
-# 拉取原项目的最新代码
-git fetch upstream
+# 在Github上点击Sync fork 同步更新原项目的最新代码
 
-# 合并到你的 main 分支
-git merge upstream/main
-
-# 推送更新到你的 GitHub
-git push origin main
+# 将最新代码拉到本地
+git pull
 ```
 
 ### 3. 将更新合并到你的开发分支
