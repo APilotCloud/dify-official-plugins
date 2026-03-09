@@ -31,7 +31,7 @@ from dify_plugin.entities.model.message import (
 )
 from dify_plugin.errors.model import CredentialsValidateFailedError
 from dify_plugin.interfaces.model.large_language_model import LargeLanguageModel
-from openai import AzureOpenAI, Stream
+from openai import Stream
 from openai.types import Completion
 from openai.types.chat import (
     ChatCompletion,
@@ -65,7 +65,14 @@ class AzureOpenAILargeLanguageModel(_CommonAzureOpenAI, LargeLanguageModel):
         ai_model_entity = self._get_ai_model_entity(
             base_model_name=base_model_name, model=model
         )
-        if "codex" in base_model_name:
+        # Check if model should use Responses API
+        # 1. Models with "codex" in the name
+        # 2. gpt-5.x models (excluding chat and codex variants which use different APIs)
+        uses_responses_api = (
+            "codex" in base_model_name
+            or (base_model_name.startswith("gpt-5") and "chat" not in base_model_name and "codex" not in base_model_name)
+        )
+        if uses_responses_api:
             return self._chat_generate_with_responses(
                 model=model,
                 credentials=credentials,
@@ -148,8 +155,13 @@ class AzureOpenAILargeLanguageModel(_CommonAzureOpenAI, LargeLanguageModel):
             )
 
         try:
-            client = AzureOpenAI(**self._to_credential_kwargs(credentials))
-            if "codex" in base_model_name:
+            client = self._create_client(credentials)
+            # Check if model should use Responses API
+            uses_responses_api = (
+                "codex" in base_model_name
+                or (base_model_name.startswith("gpt-5") and "chat" not in base_model_name and "codex" not in base_model_name)
+            )
+            if uses_responses_api:
                 client.responses.create(
                     input="ping",
                     model=model,
@@ -204,7 +216,7 @@ class AzureOpenAILargeLanguageModel(_CommonAzureOpenAI, LargeLanguageModel):
         stream: bool = True,
         user: Optional[str] = None,
     ) -> Union[LLMResult, Generator]:
-        client = AzureOpenAI(**self._to_credential_kwargs(credentials))
+        client = self._create_client(credentials)
         extra_model_kwargs = {}
         if stop:
             extra_model_kwargs["stop"] = stop
@@ -328,7 +340,7 @@ class AzureOpenAILargeLanguageModel(_CommonAzureOpenAI, LargeLanguageModel):
         user: Optional[str] = None,
     ) -> Union[LLMResult, Generator]:
         base_model_name = self._get_base_model_name(credentials)
-        client = AzureOpenAI(**self._to_credential_kwargs(credentials))
+        client = self._create_client(credentials)
         response_format = model_parameters.get("response_format")
         if response_format:
             if response_format == "json_schema":
@@ -419,7 +431,7 @@ class AzureOpenAILargeLanguageModel(_CommonAzureOpenAI, LargeLanguageModel):
 
         Reference: https://platform.openai.com/docs/guides/migrate-to-responses
         """
-        client = AzureOpenAI(**self._to_credential_kwargs(credentials))
+        client = self._create_client(credentials)
 
         # Convert prompt messages to the Responses API format
         input_messages = self._convert_prompt_messages_to_responses_input(prompt_messages)
