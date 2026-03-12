@@ -135,7 +135,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _get_file_data(
-        message_content: _MMC, file_server_url_prefix: str | None = None
+            message_content: _MMC, file_server_url_prefix: str | None = None
     ) -> Tuple[bytes, str]:
         """
         获取文件数据和 MIME 类型，用于内联方式处理
@@ -171,8 +171,8 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
         with suppress(Exception):
             if (
-                message_content.type == PromptMessageContentType.DOCUMENT
-                and message_content.format in ["md"]
+                    message_content.type == PromptMessageContentType.DOCUMENT
+                    and message_content.format in ["md"]
             ):
                 pending_mime_type = "text/markdown"
 
@@ -180,9 +180,9 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _upload_file_content_to_google(
-        message_content: _MMC,
-        genai_client: genai.Client,
-        file_server_url_prefix: str | None = None,
+            message_content: _MMC,
+            genai_client: genai.Client,
+            file_server_url_prefix: str | None = None,
     ) -> Tuple[str, str]:
         key = f"{message_content.type.value}:{hash(message_content.data)}"
         if file_cache.exists(key):
@@ -199,7 +199,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
                     if file_server_url_prefix:
                         file_url = f"{file_server_url_prefix.rstrip('/')}/files{message_content.url.split('/files')[-1]}"
                     if not file_url.startswith("https://") and not file_url.startswith(
-                        "http://"
+                            "http://"
                     ):
                         raise ValueError("Set FILES_URL env first!")
                     response: requests.Response = requests.get(file_url)
@@ -213,8 +213,8 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
         with suppress(Exception):
             if (
-                message_content.type == PromptMessageContentType.DOCUMENT
-                and message_content.format in ["md"]
+                    message_content.type == PromptMessageContentType.DOCUMENT
+                    and message_content.format in ["md"]
             ):
                 pending_mime_type = "text/markdown"
 
@@ -226,7 +226,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         )
 
         while file.state.name == "PROCESSING":
-            time.sleep(3)
+            time.sleep(2)
             file = upload_utils.get(
                 genai_client.files,
                 name=file.name
@@ -250,7 +250,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         """
         if not grounding_metadata or not grounding_metadata.grounding_chunks:
             return ""
-            
+
         result = "\n\n**Search Sources:**\n"
         for index, entry in enumerate(grounding_metadata.grounding_chunks, start=1):
             result += f"{index}. [{entry.web.title}]({entry.web.uri})\n"
@@ -274,7 +274,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _calculate_tokens_from_usage_metadata(
-        usage_metadata: types.GenerateContentResponseUsageMetadata | None,
+            usage_metadata: types.GenerateContentResponseUsageMetadata | None,
     ) -> tuple[int, int]:
         """
         Calculate prompt and completion tokens from usage metadata.
@@ -317,10 +317,10 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _set_chat_parameters(
-        *,
-        config: types.GenerateContentConfig,
-        model_parameters: Mapping[str, Any],
-        stop: List[str] | None = None,
+            *,
+            config: types.GenerateContentConfig,
+            model_parameters: Mapping[str, Any],
+            stop: List[str] | None = None,
     ) -> None:
         if "json_schema" in model_parameters:
             config.response_mime_type = "application/json"
@@ -353,39 +353,39 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _set_image_config(
-        *,
-        config: types.GenerateContentConfig,
-        model_parameters: Mapping[str, Any],
-        model: str,
+            *,
+            config: types.GenerateContentConfig,
+            model_parameters: Mapping[str, Any],
+            model: str,
     ):
         if model not in IMAGE_GENERATION_MODELS:
             return
 
         aspect_ratio = model_parameters.get("aspect_ratio")
         if (
-            not aspect_ratio
-            or not isinstance(aspect_ratio, str)
-            or aspect_ratio
-            not in [
-                "1:1",
-                "2:3",
-                "3:2",
-                "3:4",
-                "4:3",
-                "4:5",
-                "5:4",
-                "9:16",
-                "16:9",
-                "21:9",
-            ]
+                not aspect_ratio
+                or not isinstance(aspect_ratio, str)
+                or aspect_ratio
+                not in [
+            "1:1",
+            "2:3",
+            "3:2",
+            "3:4",
+            "4:3",
+            "4:5",
+            "5:4",
+            "9:16",
+            "16:9",
+            "21:9",
+        ]
         ):
             aspect_ratio = None
 
         resolution = model_parameters.get("resolution")
         if (
-            not resolution
-            or not isinstance(resolution, str)
-            or resolution not in ["1K", "2K", "4K"]
+                not resolution
+                or not isinstance(resolution, str)
+                or resolution not in ["1K", "2K", "4K"]
         ):
             resolution = None
 
@@ -395,10 +395,10 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _set_thinking_config(
-        *,
-        config: types.GenerateContentConfig,
-        model_parameters: Mapping[str, Any],
-        model_name: str,
+            *,
+            config: types.GenerateContentConfig,
+            model_parameters: Mapping[str, Any],
+            model_name: str,
     ) -> None:
         # FIXME: 2025-08-21
         # This blacklist is a temporary workaround. A more robust solution is needed
@@ -430,7 +430,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
             thinking_budget = 0
         elif thinking_mode:
             if (isinstance(thinking_budget, int) and thinking_budget == 0) or (
-                thinking_budget is None
+                    thinking_budget is None
             ):
                 thinking_budget = -1
 
@@ -455,7 +455,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _set_response_modalities(
-        *, config: types.GenerateContentConfig, model_name: str
+            *, config: types.GenerateContentConfig, model_name: str
     ) -> None:
         if model_name in IMAGE_GENERATION_MODELS:
             config.response_modalities = [
@@ -472,8 +472,8 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
     @staticmethod
     def _validate_feature_compatibility(
-        model_parameters: Mapping[str, Any],
-        tools: Optional[list[PromptMessageTool]] = None,
+            model_parameters: Mapping[str, Any],
+            tools: Optional[list[PromptMessageTool]] = None,
     ) -> dict[str, Any]:
         """
         Validate that the requested features are compatible with each other.
@@ -543,11 +543,11 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         return adjusted_params
 
     def _set_tool_calling(
-        self,
-        *,
-        config: types.GenerateContentConfig,
-        model_parameters: Mapping[str, Any],
-        tools: List[PromptMessageTool] | None = None,
+            self,
+            *,
+            config: types.GenerateContentConfig,
+            model_parameters: Mapping[str, Any],
+            tools: List[PromptMessageTool] | None = None,
     ) -> None:
         config.tools = []
 
@@ -564,12 +564,12 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
             config.tools.append(self._convert_tools_to_gemini_tool(tools))
 
     def _build_gemini_contents(
-        self,
-        prompt_messages: list[PromptMessage],
-        genai_client: genai.Client,
-        config: types.GenerateContentConfig,
-        file_server_url_prefix: str | None = None,
-        model_parameters: Mapping[str, Any] | None = None,
+            self,
+            prompt_messages: list[PromptMessage],
+            genai_client: genai.Client,
+            config: types.GenerateContentConfig,
+            file_server_url_prefix: str | None = None,
+            model_parameters: Mapping[str, Any] | None = None,
     ) -> List[types.Content]:
         """
         Build Gemini contents from prompt messages with proper role alternation
@@ -599,12 +599,12 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         return contents
 
     def _format_message_to_gemini_content(
-        self,
-        message: PromptMessage,
-        genai_client: genai.Client,
-        config: types.GenerateContentConfig,
-        file_server_url_prefix: str | None = None,
-        model_parameters: Mapping[str, Any] | None = None,
+            self,
+            message: PromptMessage,
+            genai_client: genai.Client,
+            config: types.GenerateContentConfig,
+            file_server_url_prefix: str | None = None,
+            model_parameters: Mapping[str, Any] | None = None,
     ) -> types.Content | None:
         """
         Format a single message into Contents for Google GenAI SDK
@@ -618,7 +618,7 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         """
 
         def _build_text_parts(
-            _content: str | TextPromptMessageContent, *, is_assistant_tree: bool = False
+                _content: str | TextPromptMessageContent, *, is_assistant_tree: bool = False
         ) -> List[types.Part]:
             text_parts = []
             if isinstance(_content, TextPromptMessageContent):
@@ -636,9 +636,9 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
         # Helper function to build parts from content
         def build_parts(
-            content: str | List[PromptMessageContentUnionTypes],
-            *,
-            is_assistant_tree: bool = False,
+                content: str | List[PromptMessageContentUnionTypes],
+                *,
+                is_assistant_tree: bool = False,
         ) -> List[types.Part]:
             if isinstance(content, str):
                 return _build_text_parts(content, is_assistant_tree=is_assistant_tree)
@@ -759,11 +759,11 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
             raise ValueError(f"Unknown message type: {type(message).__name__}")
 
     def _handle_generate_response(
-        self,
-        model: str,
-        credentials: dict,
-        response: types.GenerateContentResponse,
-        prompt_messages: list[PromptMessage],
+            self,
+            model: str,
+            credentials: dict,
+            response: types.GenerateContentResponse,
+            prompt_messages: list[PromptMessage],
     ) -> LLMResult:
         """
         Handle llm response
@@ -811,12 +811,12 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         )
 
     def _handle_generate_stream_response(
-        self,
-        model: str,
-        credentials: dict,
-        response: Iterator[types.GenerateContentResponse],
-        prompt_messages: list[PromptMessage],
-        genai_client: genai.Client,
+            self,
+            model: str,
+            credentials: dict,
+            response: Iterator[types.GenerateContentResponse],
+            prompt_messages: list[PromptMessage],
+            genai_client: genai.Client,
     ) -> Generator[LLMResultChunk]:
         """
         Handle llm stream response
@@ -851,12 +851,12 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
 
         for chunk in response:
             if (
-                not chunk.candidates
-                or not chunk.candidates[0].content
-                or (
+                    not chunk.candidates
+                    or not chunk.candidates[0].content
+                    or (
                     not chunk.candidates[0].content.parts
                     and not chunk.candidates[0].finish_reason
-                )
+            )
             ):
                 continue
             candidate = chunk.candidates[0]
@@ -935,13 +935,13 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         """
         contents: list[PromptMessageContent] = []
         function_calls = []
-        
+
         if not parts:
             return AssistantPromptMessage(
                 content=contents,
                 tool_calls=function_calls,  # type: ignore
             )
-            
+
         for part in parts:
             if part.text:
                 # Check if we need to start thinking mode
@@ -1029,15 +1029,15 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         return message
 
     def _invoke(
-        self,
-        model: str,
-        credentials: dict,
-        prompt_messages: list[PromptMessage],
-        model_parameters: dict,
-        tools: Optional[list[PromptMessageTool]] = None,
-        stop: Optional[list[str]] = None,
-        stream: bool = True,
-        user: Optional[str] = None,
+            self,
+            model: str,
+            credentials: dict,
+            prompt_messages: list[PromptMessage],
+            model_parameters: dict,
+            tools: Optional[list[PromptMessageTool]] = None,
+            stop: Optional[list[str]] = None,
+            stream: bool = True,
+            user: Optional[str] = None,
     ) -> Union[LLMResult, Generator[LLMResultChunk]]:
         """
         Invoke large language model
@@ -1065,15 +1065,15 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         )
 
     def _generate(
-        self,
-        model: str,
-        credentials: dict,
-        prompt_messages: list[PromptMessage],
-        model_parameters: Mapping[str, Any],
-        tools: Optional[list[PromptMessageTool]] = None,
-        stop: Optional[list[str]] = None,
-        stream: bool = True,
-        user: Optional[str] = None,
+            self,
+            model: str,
+            credentials: dict,
+            prompt_messages: list[PromptMessage],
+            model_parameters: Mapping[str, Any],
+            tools: Optional[list[PromptMessageTool]] = None,
+            stop: Optional[list[str]] = None,
+            stream: bool = True,
+            user: Optional[str] = None,
     ) -> Union[LLMResult, Generator[LLMResultChunk]]:
         # Validate and adjust feature compatibility
         model_parameters = self._validate_feature_compatibility(model_parameters, tools)
@@ -1159,11 +1159,11 @@ class GoogleLargeLanguageModel(LargeLanguageModel):
         )
 
     def get_num_tokens(
-        self,
-        model: str,
-        credentials: dict,
-        prompt_messages: list[PromptMessage],
-        tools: Optional[list[PromptMessageTool]] = None,
+            self,
+            model: str,
+            credentials: dict,
+            prompt_messages: list[PromptMessage],
+            tools: Optional[list[PromptMessageTool]] = None,
     ) -> int:
         """
         Get number of tokens for given prompt messages
