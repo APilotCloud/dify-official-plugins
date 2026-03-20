@@ -110,6 +110,9 @@ chmod +x dify-plugin-darwin-arm64
 
 # 案例：打包Gemini模型插件
 ./dify-plugin-darwin-arm64 plugin package ./models/gemini
+
+# 案例：打包Anthropic模型插件
+./dify-plugin-darwin-arm64 plugin package ./models/anthropic
 ```
 
 ### 2. 获取插件包
